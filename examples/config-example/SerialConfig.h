@@ -1,15 +1,13 @@
 #ifndef SERIAL_CONFIG_H
 #define SERIAL_CONFIG_H
 
-// Velocità di comunicazione seriale
-#define SERIAL_BAUDRATE 921600
+#define SERIAL_BAUD_RATE 921600 // Velocità della comunicazione
 
-// Numero di byte per pacchetto
-#define PACKET_SIZE 8
-
-// Dispositivo seriale per Raspberry Pi (su Arduino non serve)
-#ifdef __linux__
-    #define SERIAL_DEVICE "/dev/serial0"
+// Definizione buffer per Arduino (limitato in RAM)
+#ifdef ARDUINO
+#define SERIAL_BUFFER_SIZE 64
+#else
+#define SERIAL_BUFFER_SIZE 256
 #endif
 
 #endif // SERIAL_CONFIG_H

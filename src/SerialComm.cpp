@@ -1,69 +1,38 @@
-// SerialComm.cpp - Implementazione per Arduino e Raspberry Pi
 #include "SerialComm.h"
-#ifdef ARDUINO
-#include <Arduino.h>
-#else
-#include <wiringSerial.h>
-#include <stdio.h>
-#include <string.h>
-#endif
 
-SerialComm::SerialComm() {}
+SerialComm::SerialComm () : bufferIndex (0) {
+}
 
-void SerialComm::begin(unsigned long baudrate) {
+void SerialComm::begin () {
 #ifdef ARDUINO
-    Serial.begin(baudrate);
+    Serial.begin (SERIAL_BAUD_RATE);
 #else
-    int fd = serialOpen("/dev/serial0", baudrate);
-    if (fd == -1) {
-        perror("Errore apertura seriale");
-    }
+    std::cout << "Serial initialized at " << SERIAL_BAUD_RATE << " baud." << std::endl;
 #endif
 }
 
-bool SerialComm::sendPacket(uint8_t command, uint8_t* data, uint8_t length) {
-    if (length > MAX_PAYLOAD_SIZE) return false;
-    
-    Packet packet;
-    packet.startByte = START_BYTE;
-    packet.command = command;
-    packet.length = length;
-    memcpy(packet.payload, data, length);
-    packet.checksum = calculateChecksum(packet);
-    
+void SerialComm::sendData (const uint8_t* data, uint8_t length) {
 #ifdef ARDUINO
-    Serial.write((uint8_t*)&packet, sizeof(Packet));
+    Serial.write (data, length);
 #else
-    int fd = serialOpen("/dev/serial0", 921600);
-    if (fd != -1) {
-        write(fd, &packet, sizeof(Packet));
-        serialClose(fd);
+    std::cout << "Sending: ";
+    for (uint8_t i = 0; i < length; i++) {
+        std::cout << std::hex << static_cast<int> (data[i]) << " ";
     }
+    std::cout << std::dec << std::endl;
 #endif
+}
+
+bool SerialComm::receiveData (uint8_t* data, uint8_t length) {
+#ifdef ARDUINO
+    if (Serial.available () >= length) {
+        Serial.readBytes (data, length);
+        return true;
+    }
+#else
+    // Simulazione di ricezione su Raspberry Pi
+    std::memcpy (data, "TEST", length);
     return true;
-}
-
-bool SerialComm::receivePacket(Packet &packet) {
-#ifdef ARDUINO
-    if (Serial.available() >= sizeof(Packet)) {
-        Serial.readBytes((char*)&packet, sizeof(Packet));
-        return packet.startByte == START_BYTE && packet.checksum == calculateChecksum(packet);
-    }
-#else
-    int fd = serialOpen("/dev/serial0", 921600);
-    if (fd != -1 && serialDataAvail(fd) >= sizeof(Packet)) {
-        read(fd, &packet, sizeof(Packet));
-        serialClose(fd);
-        return packet.startByte == START_BYTE && packet.checksum == calculateChecksum(packet);
-    }
 #endif
     return false;
-}
-
-uint8_t SerialComm::calculateChecksum(Packet &packet) {
-    uint8_t sum = packet.startByte + packet.command + packet.length;
-    for (uint8_t i = 0; i < packet.length; i++) {
-        sum += packet.payload[i];
-    }
-    return sum;
 }
