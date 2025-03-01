@@ -1,17 +1,17 @@
 {
     "name": "SerialComm",
     "version": "1.0.0",
-    "description": "Libreria per la comunicazione seriale binaria tra Raspberry Pi e Arduino",
+    "description": "Serial communication library for Arduino and Raspberry Pi",
     "keywords": ["serial", "uart", "communication", "raspberry", "arduino"],
     "repository": {
         "type": "git",
-        "url": "https://github.com/tuo-utente/SerialComm"
+        "url": "https://github.com/Valerio-26/serial-com-lib"
     },
     "authors": [
         {
-            "name": "Valerio",
-            "email": "tuo@email.com",
-            "url": "https://github.com/tuo-utente",
+            "name": "Valerio Cancemi",
+            "email": "valeriocancemi.dev@gmail.com",
+            "url": "https://github.com/Valerio-26",
             "maintainer": true
         }
     ],
